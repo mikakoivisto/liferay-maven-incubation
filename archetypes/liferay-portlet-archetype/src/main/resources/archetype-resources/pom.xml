@@ -15,6 +15,7 @@
 				<version>${liferay.version}</version>
 				<configuration>
 					<autoDeployDir>${liferay.auto.deploy.dir}</autoDeployDir>
+					<liferayVersion>${liferay.version}</liferayVersion>
 				</configuration>
 			</plugin>
 			<plugin>
