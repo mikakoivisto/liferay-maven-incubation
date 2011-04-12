@@ -20,9 +20,14 @@ import com.liferay.portal.util.InitUtil;
 import com.liferay.portal.util.PropsUtil;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Builds Liferay Service Builder services.
@@ -30,12 +35,14 @@ import org.apache.maven.plugin.MojoExecutionException;
  * @author Mika Koivisto
  * @author Thiago Moreira
  * @goal   build-service
- * @phase  process-sources
+ * @phase  generate-sources
  */
 public class ServiceBuilderMojo extends AbstractMojo {
 
 	public void execute() throws MojoExecutionException {
 		try {
+			initClassLoader();
+
 			doExecute();
 		}
 		catch (Exception e) {
@@ -69,6 +76,23 @@ public class ServiceBuilderMojo extends AbstractMojo {
 			sqlIndexesFileName, sqlIndexesPropertiesFileName,
 			sqlSequencesFileName, autoNamespaceTables, beanLocatorUtil,
 			propsUtil, pluginName, null);
+	}
+
+	protected void initClassLoader() throws Exception {
+		synchronized (ServiceBuilderMojo.class) {
+			URLClassLoader classLoader =
+				(URLClassLoader) getClass().getClassLoader();
+
+			Method method = URLClassLoader.class.getDeclaredMethod(
+				"addURL", URL.class);
+			method.setAccessible(true);
+
+			for (Object object : project.getCompileClasspathElements()) {
+				String path = (String) object;
+
+				method.invoke(classLoader, new File(path).toURI().toURL());
+			}
+		}
 	}
 
 	/**
@@ -128,6 +152,13 @@ public class ServiceBuilderMojo extends AbstractMojo {
 	 * @required
 	 */
 	private String pluginName;
+
+	/**
+	 * @parameter expression="${project}"
+	 * @required
+	 * @readonly
+	 */
+	private MavenProject project;
 
 	/**
 	 * @parameter default-value="com.liferay.util.service.ServiceProps"
