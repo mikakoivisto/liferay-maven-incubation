@@ -14,6 +14,7 @@
 
 package com.liferay.maven.plugins;
 
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.tools.servicebuilder.ServiceBuilder;
 import com.liferay.portal.util.InitUtil;
@@ -23,7 +24,6 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -67,6 +67,14 @@ public class ServiceBuilderMojo extends AbstractMojo {
 
 		InitUtil.initWithSpring();
 
+		// Copy the existing service.properties
+
+		copyServiceProps();
+
+		// Ensure sql directory exists
+
+		new File(sqlDir).mkdirs();
+
 		new ServiceBuilder(
 			serviceFileName, hbmFileName, ormFileName, modelHintsFileName,
 			springFileName, springBaseFileName, null,
@@ -76,6 +84,10 @@ public class ServiceBuilderMojo extends AbstractMojo {
 			sqlIndexesFileName, sqlIndexesPropertiesFileName,
 			sqlSequencesFileName, autoNamespaceTables, beanLocatorUtil,
 			propsUtil, pluginName, null);
+
+		// Move service.properties to resources
+
+		moveServiceProps();
 	}
 
 	protected void initClassLoader() throws Exception {
@@ -92,6 +104,24 @@ public class ServiceBuilderMojo extends AbstractMojo {
 
 				method.invoke(classLoader, new File(path).toURI().toURL());
 			}
+		}
+	}
+
+	protected void copyServiceProps() {
+		File servicePropsFile = new File(resourcesDir, "service.properties");
+
+		if (servicePropsFile.exists()) {
+			FileUtil.copyFile(
+				servicePropsFile, new File(implDir, "service.properties"));
+		}
+	}
+
+	protected void moveServiceProps() {
+		File servicePropsFile = new File(implDir, "service.properties");
+
+		if (servicePropsFile.exists()) {
+			FileUtil.move(
+				servicePropsFile, new File(resourcesDir, "service.properties"));
 		}
 	}
 
@@ -165,6 +195,12 @@ public class ServiceBuilderMojo extends AbstractMojo {
 	 * @required
 	 */
 	private String propsUtil;
+
+	/**
+	 * @parameter default-value="${basedir}/src/main/resources"
+	 * @required
+	 */
+	private String resourcesDir;
 
 	/**
 	 * @parameter default-value="${basedir}/src/main/webapp/WEB-INF/service.xml"
