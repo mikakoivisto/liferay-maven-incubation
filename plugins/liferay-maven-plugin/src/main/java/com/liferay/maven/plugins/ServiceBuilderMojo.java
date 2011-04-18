@@ -58,6 +58,15 @@ public class ServiceBuilderMojo extends AbstractMojo {
 		}
 	}
 
+	protected void copyServiceProps() {
+		File servicePropsFile = new File(resourcesDir, "service.properties");
+	
+		if (servicePropsFile.exists()) {
+			FileUtil.copyFile(
+				servicePropsFile, new File(implDir, "service.properties"));
+		}
+	}
+
 	protected void doExecute() throws Exception {
 		File inputFile = new File(serviceFileName);
 
@@ -75,11 +84,7 @@ public class ServiceBuilderMojo extends AbstractMojo {
 
 		InitUtil.initWithSpring();
 
-		// Copy the existing service.properties
-
 		copyServiceProps();
-
-		// Ensure sql directory exists
 
 		new File(sqlDir).mkdirs();
 
@@ -93,20 +98,9 @@ public class ServiceBuilderMojo extends AbstractMojo {
 			sqlSequencesFileName, autoNamespaceTables, beanLocatorUtil,
 			propsUtil, pluginName, null);
 
-		// Move service.properties to resources
-
 		moveServiceProps();
 
 		invokeDependencyBuild();
-	}
-
-	protected void copyServiceProps() {
-		File servicePropsFile = new File(resourcesDir, "service.properties");
-
-		if (servicePropsFile.exists()) {
-			FileUtil.copyFile(
-				servicePropsFile, new File(implDir, "service.properties"));
-		}
 	}
 
 	protected void initClassLoader() throws Exception {
