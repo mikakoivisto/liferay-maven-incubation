@@ -76,6 +76,11 @@
 			<artifactId>maven-project</artifactId>
 			<version>${maven.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-invoker</artifactId>
+			<version>${maven.version}</version>
+		</dependency>
 
 		<!-- External -->
 

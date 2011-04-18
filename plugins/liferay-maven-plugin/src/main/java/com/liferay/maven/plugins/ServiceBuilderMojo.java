@@ -24,10 +24,18 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenCommandLineBuilder;
 
 /**
  * Builds Liferay Service Builder services.
@@ -88,6 +96,17 @@ public class ServiceBuilderMojo extends AbstractMojo {
 		// Move service.properties to resources
 
 		moveServiceProps();
+
+		invokeDependencyBuild();
+	}
+
+	protected void copyServiceProps() {
+		File servicePropsFile = new File(resourcesDir, "service.properties");
+
+		if (servicePropsFile.exists()) {
+			FileUtil.copyFile(
+				servicePropsFile, new File(implDir, "service.properties"));
+		}
 	}
 
 	protected void initClassLoader() throws Exception {
@@ -107,12 +126,58 @@ public class ServiceBuilderMojo extends AbstractMojo {
 		}
 	}
 
-	protected void copyServiceProps() {
-		File servicePropsFile = new File(resourcesDir, "service.properties");
+	protected void invokeDependencyBuild() throws Exception {
+		List<Dependency> dependencies = new ArrayList<Dependency>();
 
-		if (servicePropsFile.exists()) {
-			FileUtil.copyFile(
-				servicePropsFile, new File(implDir, "service.properties"));
+		MavenProject parentProject = project.getParent();
+
+		if (parentProject == null || !postBuildDependencyModules) {
+			return;
+		}
+
+		List<String> modules = parentProject.getModules();
+
+		List<String> reactorIncludes = new ArrayList<String>();
+
+		for (Object obj : project.getDependencies()) {
+			Dependency dependency = (Dependency)obj;
+			System.out.println(obj.getClass().getName() + ": " + obj);
+
+			if (project.getGroupId().equals(dependency.getGroupId()) &&
+				modules.contains(dependency.getArtifactId())) {
+
+				reactorIncludes.add(dependency.getArtifactId() + "/pom.xml");
+			}
+		}
+
+		File parentBaseDir = project.getParent().getBasedir();
+
+		if (postBuildGoals == null) {
+			postBuildGoals = new ArrayList<String>();
+			postBuildGoals.add("install");
+		}
+
+		if (reactorIncludes.size() > 0) {
+			InvocationRequest request = new DefaultInvocationRequest();
+
+			request.setBaseDirectory(parentBaseDir);
+			request.activateReactor(
+				reactorIncludes.toArray(new String[] {}), null);
+			request.setGoals(postBuildGoals);
+			request.setRecursive(false);
+
+			getLog().info(
+				"Executing: " + new MavenCommandLineBuilder().build(request));
+
+			InvocationResult result = invoker.execute(request);
+
+			if (result.getExecutionException() != null) {
+				throw result.getExecutionException();
+			}
+			else if (result.getExitCode() != 0) {
+				throw new MojoExecutionException(
+					"Exit code was " + result.getExitCode());
+			}
 		}
 	}
 
@@ -157,6 +222,11 @@ public class ServiceBuilderMojo extends AbstractMojo {
 	private String implDir;
 
 	/**
+	 * @component
+	 */
+	private Invoker invoker;
+
+	/**
 	 * @parameter default-value=
 				  "${basedir}/src/main/webapp/html/js/liferay/service.js"
 	 * @required
@@ -182,6 +252,17 @@ public class ServiceBuilderMojo extends AbstractMojo {
 	 * @required
 	 */
 	private String pluginName;
+
+	/**
+	 * @parameter expression="${postBuildDependencyModules}" default-value="true"
+	 * @required
+	 */
+	private boolean postBuildDependencyModules;
+
+	/**
+	 * @parameter
+	 */
+	private List<String> postBuildGoals;
 
 	/**
 	 * @parameter expression="${project}"
