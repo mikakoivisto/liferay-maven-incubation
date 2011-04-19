@@ -24,6 +24,7 @@ import com.liferay.portal.tools.deploy.HookDeployer;
 import com.liferay.portal.tools.deploy.LayoutTemplateDeployer;
 import com.liferay.portal.tools.deploy.PortletDeployer;
 import com.liferay.portal.tools.deploy.ThemeDeployer;
+import com.liferay.portal.tools.deploy.WebDeployer;
 import com.liferay.portal.util.FastDateFormatFactoryImpl;
 import com.liferay.portal.util.FileImpl;
 import com.liferay.portal.util.HtmlImpl;
@@ -106,6 +107,9 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 		else if (pluginType.equals("theme")) {
 			deployTheme();
 		}
+		else if (pluginType.equals("web")) {
+			deployWeb();
+		}
 	}
 
 	protected void deployHook() throws Exception {
@@ -179,6 +183,18 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 		jars.add(libPath + "/util-taglib.jar");
 
 		new ThemeDeployer(wars, jars);
+	}
+
+	protected void deployWeb() throws Exception {
+		List<String> wars = new ArrayList<String>();
+
+		List<String> jars = new ArrayList<String>();
+
+		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
+
+		jars.add(libPath + "/util-java.jar");
+
+		new WebDeployer(wars, jars);
 	}
 
 	protected void initPortal() {
