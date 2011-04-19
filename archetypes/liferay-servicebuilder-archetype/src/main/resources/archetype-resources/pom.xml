@@ -39,7 +39,7 @@
 		<liferay.version>6.1.0-SNAPSHOT</liferay.version>
 	</properties>
 	<modules>
-		<module>${artifactId}-service</module>
 		<module>${artifactId}-portlet</module>
+		<module>${artifactId}-service</module>
 	</modules>
 </project>

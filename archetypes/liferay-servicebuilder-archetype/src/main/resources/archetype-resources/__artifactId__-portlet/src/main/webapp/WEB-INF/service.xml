@@ -1,4 +1,5 @@
 <!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 6.0.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_6_0_0.dtd">
+
 <service-builder package-path="${groupId}">
 	<namespace>${artifactId}</namespace>
 	<entity name="Foo" uuid="true" local-service="true" remote-service="true">
@@ -43,6 +44,5 @@
 
 		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
 		<reference package-path="com.liferay.portlet.asset" entity="AssetTag" />
-
 	</entity>
 </service-builder>

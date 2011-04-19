@@ -11,7 +11,7 @@
 	<groupId>${groupId}</groupId>
 	<artifactId>${artifactId}-portlet</artifactId>
 	<packaging>war</packaging>
-	<name>${artifactId} portlet</name>
+	<name>${artifactId} Portlet</name>
 	<version>${version}</version>
 	<build>
 		<plugins>
