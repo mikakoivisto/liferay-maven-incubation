@@ -26,6 +26,7 @@
 					<autoDeployDir>${liferay.auto.deploy.dir}</autoDeployDir>
 					<liferayVersion>${liferay.version}</liferayVersion>
 					<parentTheme>${liferay.theme.parent}</parentTheme>
+					<pluginType>theme</pluginType>
 					<themeType>${liferay.theme.type}</themeType>
 				</configuration>
 			</plugin>

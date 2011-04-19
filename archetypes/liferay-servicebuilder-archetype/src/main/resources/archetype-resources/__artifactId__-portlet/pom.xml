@@ -21,6 +21,7 @@
 				<version>${liferay.version}</version>
 				<configuration>
 					<apiDir>${basedir}/../${artifactId}-service/src/main/java</apiDir>
+					<pluginType>portlet</pluginType>
 				</configuration>
 			</plugin>
 		</plugins>
