@@ -34,6 +34,7 @@ import com.liferay.portal.xml.SAXReaderImpl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.components.io.fileselectors.FileSelector;
@@ -64,143 +66,150 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 	}
 
 	protected void doExecute() throws Exception {
-		if (warFile.exists()) {
-			getLog().info(
-				"Direct deploying " + warFileName);
-
-			getLog().debug("appServerType: " + appServerType);
-			getLog().debug("baseDir: " + baseDir);
-			getLog().debug("deployDir: " + deployDir.getAbsolutePath());
-			getLog().debug("jbossPrefix: " + jbossPrefix);
-			getLog().debug("pluginType: " + pluginType);
-			getLog().debug("unpackWar: " + unpackWar);
-
-			_preparePortalDependencies();
-
-			System.setProperty(
-				"liferay.lib.portal.dir",
-				workDir.getAbsolutePath() + "/WEB-INF/lib");
-			System.setProperty("deployer.base.dir", baseDir);
-			System.setProperty(
-				"deployer.dest.dir", deployDir.getAbsolutePath());
-			System.setProperty("deployer.app.server.type", appServerType);
-			System.setProperty(
-				"deployer.unpack.war", String.valueOf(unpackWar));
-			System.setProperty("deployer.file.pattern", warFileName);
-
-			_initPortal();
-
-			if (_PLUGIN_TYPE_HOOK.equals(pluginType)) {
-				doDeployHook();
-			}
-			else if (_PLUGIN_TYPE_LAYOUTTPL.equals(pluginType)) {
-				doDeployLayouttpl();
-			}
-			else if (_PLUGIN_TYPE_PORTLET.equals(pluginType)) {
-				doDeployPortlet();
-			}
-			else if (_PLUGIN_TYPE_THEME.equals(pluginType)) {
-				doDeployTheme();
-			}
-		}
-		else {
+		if (!warFile.exists()) {
 			getLog().error(warFileName + " does not exist");
 
 			throw new FileNotFoundException(warFileName + " does not exist!");
 		}
+
+		getLog().info("Directly deploying " + warFileName);
+
+		getLog().debug("appServerType: " + appServerType);
+		getLog().debug("baseDir: " + baseDir);
+		getLog().debug("deployDir: " + deployDir.getAbsolutePath());
+		getLog().debug("jbossPrefix: " + jbossPrefix);
+		getLog().debug("pluginType: " + pluginType);
+		getLog().debug("unpackWar: " + unpackWar);
+
+		preparePortalDependencies();
+
+		System.setProperty("deployer.app.server.type", appServerType);
+		System.setProperty("deployer.base.dir", baseDir);
+		System.setProperty("deployer.dest.dir", deployDir.getAbsolutePath());
+		System.setProperty("deployer.file.pattern", warFileName);
+		System.setProperty("deployer.unpack.war", String.valueOf(unpackWar));
+		System.setProperty(
+			"liferay.lib.portal.dir",
+			workDir.getAbsolutePath() + "/WEB-INF/lib");
+
+		initPortal();
+
+		if (pluginType.equals("hook")) {
+			deployHook();
+		}
+		else if (pluginType.equals("layouttpl")) {
+			deployLayoutTemplate();
+		}
+		else if (pluginType.equals("portlet")) {
+			deployPortlet();
+		}
+		else if (pluginType.equals("theme")) {
+			deployTheme();
+		}
 	}
 
-	protected void doDeployHook() throws Exception {
+	protected void deployHook() throws Exception {
 		List<String> wars = new ArrayList<String>();
+
 		List<String> jars = new ArrayList<String>();
 
-		String libPathPrefix = workDir.getAbsolutePath() + "/WEB-INF/lib";
+		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
 
-		jars.add(libPathPrefix + "/util-java.jar");
+		jars.add(libPath + "/util-java.jar");
 
 		new HookDeployer(wars, jars);
 	}
 
-	protected void doDeployLayouttpl() throws Exception {
+	protected void deployLayoutTemplate() throws Exception {
 		List<String> wars = new ArrayList<String>();
 		List<String> jars = new ArrayList<String>();
 
 		new LayoutTemplateDeployer(wars, jars);
 	}
 
-	protected void doDeployPortlet() throws Exception {
-		String tldPathPrefix = workDir.getAbsolutePath() + "/WEB-INF/tld";
+	protected void deployPortlet() throws Exception {
+		String tldPath = workDir.getAbsolutePath() + "/WEB-INF/tld";
 
 		System.setProperty(
-			"deployer.aui.taglib.dtd", tldPathPrefix + "/liferay-aui.tld");
-		System.setProperty(
-			"deployer.portlet.taglib.dtd",
-			tldPathPrefix + "/liferay-portlet.tld");
-		System.setProperty(
-			"deployer.portlet-ext.taglib.dtd",
-			tldPathPrefix + "/liferay-portlet-ext.tld");
-		System.setProperty(
-			"deployer.security.taglib.dtd",
-			tldPathPrefix + "/liferay-security.tld");
-		System.setProperty(
-			"deployer.theme.taglib.dtd",
-			tldPathPrefix + "/liferay-theme.tld");
-		System.setProperty(
-			"deployer.ui.taglib.dtd",
-			tldPathPrefix + "/liferay-ui.tld");
-		System.setProperty(
-			"deployer.util.taglib.dtd",
-			tldPathPrefix + "/liferay-util.tld");
+			"deployer.aui.taglib.dtd", tldPath + "/liferay-aui.tld");
 		System.setProperty(
 			"deployer.custom.portlet.xml", String.valueOf(customPortletXml));
+		System.setProperty(
+			"deployer.portlet.taglib.dtd", tldPath + "/liferay-portlet.tld");
+		System.setProperty(
+			"deployer.portlet-ext.taglib.dtd",
+			tldPath + "/liferay-portlet-ext.tld");
+		System.setProperty(
+			"deployer.security.taglib.dtd", tldPath + "/liferay-security.tld");
+		System.setProperty(
+			"deployer.theme.taglib.dtd", tldPath + "/liferay-theme.tld");
+		System.setProperty(
+			"deployer.ui.taglib.dtd", tldPath + "/liferay-ui.tld");
+		System.setProperty(
+			"deployer.util.taglib.dtd", tldPath + "/liferay-util.tld");
+
+		List<String> wars = new ArrayList<String>();
 
 		List<String> jars = new ArrayList<String>();
 
-		String libPathPrefix = workDir.getAbsolutePath() + "/WEB-INF/lib";
+		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
 
-		jars.add(libPathPrefix + "/util-bridges.jar");
-		jars.add(libPathPrefix + "/util-java.jar");
-		jars.add(libPathPrefix + "/util-taglib.jar");
-
-		List<String> wars = new ArrayList<String>();
+		jars.add(libPath + "/util-bridges.jar");
+		jars.add(libPath + "/util-java.jar");
+		jars.add(libPath + "/util-taglib.jar");
 
 		new PortletDeployer(wars, jars);
 	}
 
-	protected void doDeployTheme() throws Exception {
-		String tldPathPrefix = workDir.getAbsolutePath() + "/WEB-INF/tld";
+	protected void deployTheme() throws Exception {
+		String tldPath = workDir.getAbsolutePath() + "/WEB-INF/tld";
 
 		System.setProperty(
-			"deployer.theme.taglib.dtd", tldPathPrefix + "/liferay-theme.tld");
+			"deployer.theme.taglib.dtd", tldPath + "/liferay-theme.tld");
 		System.setProperty(
-			"deployer.util.taglib.dtd", tldPathPrefix + "/liferay-util.tld");
+			"deployer.util.taglib.dtd", tldPath + "/liferay-util.tld");
+
+		List<String> wars = new ArrayList<String>();
 
 		List<String> jars = new ArrayList<String>();
 
-		String libPathPrefix = workDir.getAbsolutePath() + "/WEB-INF/lib";
+		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
 
-		jars.add(libPathPrefix + "/util-java.jar");
-		jars.add(libPathPrefix + "/util-taglib.jar");
-
-		List<String> wars = new ArrayList<String>();
+		jars.add(libPath + "/util-java.jar");
+		jars.add(libPath + "/util-taglib.jar");
 
 		new ThemeDeployer(wars, jars);
 	}
 
-	private void _initPortal() {
+	protected void initPortal() {
 		InitUtil.init();
 
-		new FastDateFormatFactoryUtil().setFastDateFormatFactory(
+		PortalBeanLocatorUtil.setBeanLocator(new BeanLocatorImpl(null, null));
+
+		FastDateFormatFactoryUtil fastDateFormatFactoryUtil =
+			new FastDateFormatFactoryUtil();
+
+		fastDateFormatFactoryUtil.setFastDateFormatFactory(
 			new FastDateFormatFactoryImpl());
-		new FileUtil().setFile(new FileImpl());
-		new HtmlUtil().setHtml(new HtmlImpl());
-		PortalBeanLocatorUtil.setBeanLocator(
-			new BeanLocatorImpl(null, null));
-		new PortalUtil().setPortal(new PortalImpl());
-		new SAXReaderUtil().setSAXReader(new SAXReaderImpl());		
+
+		FileUtil fileUtil = new FileUtil();
+
+		fileUtil.setFile(new FileImpl());
+
+		HtmlUtil htmlUtil = new HtmlUtil();
+
+		htmlUtil.setHtml(new HtmlImpl());
+
+		PortalUtil portalUtil = new PortalUtil();
+
+		portalUtil.setPortal(new PortalImpl());
+
+		SAXReaderUtil saxReaderUtil = new SAXReaderUtil();
+
+		saxReaderUtil.setSAXReader(new SAXReaderImpl());
 	}
 
-	private void _preparePortalDependencies() throws Exception {
+	protected void preparePortalDependencies() throws Exception {
 		Artifact artifact = artifactFactory.createArtifact(
 			"com.liferay.portal", "portal-web", liferayVersion, "", "war");
 
@@ -231,7 +240,7 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 	}
 
 	/**
-	 * @parameter expression="${appServerType}" default-value="tomcat"
+	 * @parameter default-value="tomcat" expression="${appServerType}"
 	 * @required
 	 */
 	private String appServerType;
@@ -258,7 +267,7 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 	private String baseDir;
 
 	/**
-	 * @parameter expression="${customPortletXml}" default-value="false"
+	 * @parameter default-value="false" expression="${customPortletXml}"
 	 * @required
 	 */
 	private boolean customPortletXml;
@@ -270,7 +279,7 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 	private File deployDir;
 
 	/**
-	 * @parameter expression="${jbossPrefix}" default-value=""
+	 * @parameter default-value="" expression="${jbossPrefix}"
 	 * @required
 	 */
 	private String jbossPrefix;
@@ -289,7 +298,7 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 	private ArtifactRepository localArtifactRepository;
 
 	/**
-	 * @parameter expression="${pluginType}" default-value="portlet"
+	 * @parameter default-value="portlet" expression="${pluginType}"
 	 * @required
 	 */
 	private String pluginType;
@@ -308,8 +317,7 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 	private boolean unpackWar;
 
 	/**
-	 * @parameter expression=
-	 *			  "${project.build.directory}/${project.build.finalName}.war"
+	 * @parameter expression="${project.build.directory}/${project.build.finalName}.war"
 	 * @required
 	 */
 	private File warFile;
@@ -325,11 +333,5 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 	 * @required
 	 */
 	private File workDir;
-
-	private static final String _PLUGIN_TYPE_EXT = "ext";
-	private static final String _PLUGIN_TYPE_HOOK = "hook";
-	private static final String _PLUGIN_TYPE_LAYOUTTPL = "layouttpl";
-	private static final String _PLUGIN_TYPE_PORTLET = "portlet";
-	private static final String _PLUGIN_TYPE_THEME = "theme";
 
 }
