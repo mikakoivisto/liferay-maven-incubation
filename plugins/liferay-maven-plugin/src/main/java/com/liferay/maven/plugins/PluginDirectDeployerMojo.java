@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.tools.deploy.ExtDeployer;
 import com.liferay.portal.tools.deploy.HookDeployer;
 import com.liferay.portal.tools.deploy.LayoutTemplateDeployer;
 import com.liferay.portal.tools.deploy.PortletDeployer;
@@ -95,7 +96,10 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 
 		initPortal();
 
-		if (pluginType.equals("hook")) {
+		if (pluginType.equals("ext")) {
+			deployExt();
+		}
+		else if (pluginType.equals("hook")) {
 			deployHook();
 		}
 		else if (pluginType.equals("layouttpl")) {
@@ -110,6 +114,18 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 		else if (pluginType.equals("web")) {
 			deployWeb();
 		}
+	}
+
+	protected void deployExt() throws Exception {
+		List<String> wars = new ArrayList<String>();
+
+		List<String> jars = new ArrayList<String>();
+
+		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
+
+		jars.add(libPath + "/util-java.jar");
+
+		new ExtDeployer(wars, jars);
 	}
 
 	protected void deployHook() throws Exception {

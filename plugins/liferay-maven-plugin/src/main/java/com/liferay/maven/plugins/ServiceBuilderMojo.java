@@ -16,6 +16,7 @@ package com.liferay.maven.plugins;
 
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.servicebuilder.ServiceBuilder;
 import com.liferay.portal.util.InitUtil;
 import com.liferay.portal.util.PropsUtil;
@@ -93,15 +94,39 @@ public class ServiceBuilderMojo extends AbstractMojo {
 
 		FileUtil.mkdirs(sqlDir);
 
+		String serviceFileCopy = null;
+
+		if (pluginType.equals("ext")) {
+			pluginName = null;
+			springBaseFileName = null;
+			springDynamicDataSourceFileName = null;
+			springHibernateFileName = null;
+			springInfrastructureFileName = null;
+			springShardDataSourceFileName = null;
+
+			if (serviceFileName.indexOf("/main/resources/") > 0) {
+				File serviceFile = new File(serviceFileName);
+
+				serviceFileCopy = StringUtil.replace(
+					serviceFileName, "/main/resources/", "/main/java/");
+
+				FileUtil.copyFile(serviceFile, new File(serviceFileCopy));
+			}
+		}
+
 		new ServiceBuilder(
 			serviceFileName, hbmFileName, ormFileName, modelHintsFileName,
 			springFileName, springBaseFileName, null,
 			springDynamicDataSourceFileName, springHibernateFileName,
 			springInfrastructureFileName, springShardDataSourceFileName,
-			apiDir, implDir, jsonFileName, null, sqlDir, sqlFileName,
-			sqlIndexesFileName, sqlIndexesPropertiesFileName,
+			apiDir, implDir, jsonFileName, remotingFileName, sqlDir,
+			sqlFileName, sqlIndexesFileName, sqlIndexesPropertiesFileName,
 			sqlSequencesFileName, autoNamespaceTables, beanLocatorUtil,
 			propsUtil, pluginName, null);
+
+		if (serviceFileCopy != null) {
+			FileUtil.delete(serviceFileCopy);
+		}
 
 		moveServicePropertiesFile();
 
@@ -267,6 +292,12 @@ public class ServiceBuilderMojo extends AbstractMojo {
 	private String pluginName;
 
 	/**
+	 * @parameter default-value="portlet" expression="${pluginType}"
+	 * @required
+	 */
+	private String pluginType;
+
+	/**
 	 * @parameter default-value="true" expression="${postBuildDependencyModules}"
 	 * @required
 	 */
@@ -291,13 +322,19 @@ public class ServiceBuilderMojo extends AbstractMojo {
 	private String propsUtil;
 
 	/**
+	 * @parameter default-value=""
+	 * @required
+	 */
+	private String remotingFileName;
+
+	/**
 	 * @parameter default-value="${basedir}/src/main/resources"
 	 * @required
 	 */
 	private String resourcesDir;
 
 	/**
-	 * @parameter default-value="${basedir}/src/main/webapp/WEB-INF/service.xml"
+	 * @parameter default-value="${basedir}/src/main/webapp/WEB-INF/service.xml" expression="${serviceFileName}"
 	 * @required
 	 */
 	private String serviceFileName;

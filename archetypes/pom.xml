@@ -19,6 +19,7 @@
 		<url>http://guest:guest@svn.liferay.com/repos/public/portal/trunk/support-maven/archetypes</url>
 	</scm>
 	<modules>
+		<module>liferay-ext-archetype</module>
 		<module>liferay-hook-archetype</module>
 		<module>liferay-layouttpl-archetype</module>
 		<module>liferay-portlet-archetype</module>
