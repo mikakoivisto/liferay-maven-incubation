@@ -49,6 +49,7 @@
 		</plugins>
 	</build>
 	<modules>
+		<module>artifact-installer</module>
 		<module>archetypes</module>
 		<module>plugins</module>
 	</modules>
