@@ -56,7 +56,7 @@
 	</dependencies>
 	<properties>
 		<liferay.auto.deploy.dir>../bundles/deploy</liferay.auto.deploy.dir>
-		<liferay.version>6.1.0-SNAPSHOT</liferay.version>
+		<liferay.version>6.0.6-SNAPSHOT</liferay.version>
 	</properties>
 	<modules>
 		<module>${artifactId}-ext</module>
