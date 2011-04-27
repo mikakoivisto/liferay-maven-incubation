@@ -13,7 +13,6 @@
 	<packaging>pom</packaging>
 	<name>${artifactId} Ext Lib Portal</name>
 	<version>${version}</version>
-	<!-- Add dependencies to be included in portal classloader -->
 	<dependencies>
 	</dependencies>
 </project>

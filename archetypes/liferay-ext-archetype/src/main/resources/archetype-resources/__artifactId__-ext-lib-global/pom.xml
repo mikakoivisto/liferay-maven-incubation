@@ -13,7 +13,6 @@
 	<packaging>pom</packaging>
 	<name>${artifactId} Ext Lib Global</name>
 	<version>${version}</version>
-	<!-- Add dependencies to be included in global classloader -->
 	<dependencies>
 	</dependencies>
 </project>

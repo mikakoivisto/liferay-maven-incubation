@@ -19,6 +19,7 @@ import com.liferay.portal.util.FileImpl;
 import com.liferay.util.ant.CopyTask;
 
 import java.io.File;
+
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
@@ -30,6 +31,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.components.io.fileselectors.FileSelector;
@@ -52,27 +54,46 @@ public class ExtBuilderMojo extends AbstractMojo {
 
 	protected void doExecute() throws Exception {
 		File implDir = new File(webappDir, "WEB-INF/ext-impl");
-		File implClassesDir = new File(
-			implDir, "classes/com/liferay/portal/deploy/dependencies");
-		File globalLibDir = new File(webappDir, "WEB-INF/ext-lib/global");
-		File portalLibDir = new File(webappDir, "WEB-INF/ext-lib/portal");
-		File serviceDir = new File(webappDir, "WEB-INF/ext-service");
-		File sqlDir = new File(webappDir, "WEB-INF/sql");
-		File utilBridgesDir = new File(webappDir, "WEB-INF/ext-util-bridges");
-		File utilJavaDir = new File(webappDir, "WEB-INF/ext-util-java");
-		File utilTaglibDir = new File(webappDir, "WEB-INF/ext-util-taglib");
-		File webDir = new File(webappDir, "WEB-INF/ext-web/docroot");
 
 		implDir.mkdirs();
+
+		File implClassesDir = new File(
+			implDir, "classes/com/liferay/portal/deploy/dependencies");
+
 		implClassesDir.mkdirs();
+
+		File globalLibDir = new File(webappDir, "WEB-INF/ext-lib/global");
+
 		globalLibDir.mkdirs();
+
+		File portalLibDir = new File(webappDir, "WEB-INF/ext-lib/portal");
+
 		portalLibDir.mkdirs();
+
+		File serviceDir = new File(webappDir, "WEB-INF/ext-service");
+
 		serviceDir.mkdirs();
+
+		File sqlDir = new File(webappDir, "WEB-INF/sql");
+
 		sqlDir.mkdirs();
+
+		File utilBridgesDir = new File(webappDir, "WEB-INF/ext-util-bridges");
+
 		utilBridgesDir.mkdirs();
+
+		File utilJavaDir = new File(webappDir, "WEB-INF/ext-util-java");
+
 		utilJavaDir.mkdirs();
+
+		File utilTaglibDir = new File(webappDir, "WEB-INF/ext-util-taglib");
+
 		utilTaglibDir.mkdirs();
+
+		File webDir = new File(webappDir, "WEB-INF/ext-web/docroot");
+
 		webDir.mkdirs();
+
 		workDir.mkdirs();
 
 		String groupId = project.getGroupId();
@@ -82,7 +103,7 @@ public class ExtBuilderMojo extends AbstractMojo {
 		for (Object dependencyObj : project.getDependencies()) {
 			Dependency dependency = (Dependency)dependencyObj;
 
-			if (!dependency.getGroupId().equals(groupId)) {
+			if (!groupId.equals(dependency.getGroupId())) {
 				continue;
 			}
 
@@ -144,23 +165,24 @@ public class ExtBuilderMojo extends AbstractMojo {
 			Artifact artifact, File jarDir, String jarName)
 		throws Exception {
 
-		File serviceJar = new File(jarDir, jarName);
+		File serviceJarFile = new File(jarDir, jarName);
 
-		_fileUtil.copyFile(artifact.getFile(), serviceJar);
+		_fileUtil.copyFile(artifact.getFile(), serviceJarFile);
 
 		File classesDir = new File(jarDir, "classes");
 
 		classesDir.mkdirs();
 
-		String[] excludes = new String[] {
-			"META-INF/**", "portal-*.properties", "system-*.properties"};
+		String[] excludes = {
+			"META-INF/**", "portal-*.properties", "system-*.properties"
+		};
 
-		unpack(
-			artifact.getFile(), classesDir, excludes, null);
+		unpack(artifact.getFile(), classesDir, excludes, null);
 	}
 
 	protected void copyLibraryDependencies(File libDir, Artifact artifact)
 		throws Exception {
+
 		MavenProject libProject = resolveProject(artifact);
 
 		List<Dependency> dependencies = libProject.getDependencies();
@@ -168,10 +190,10 @@ public class ExtBuilderMojo extends AbstractMojo {
 		for (Dependency dependency : dependencies) {
 			Artifact libArtifact = resolveArtifact(dependency);
 
-			File libJar = new File(
+			File libJarFile = new File(
 				libDir, libArtifact.getArtifactId() + ".jar");
 
-			_fileUtil.copyFile(libArtifact.getFile(), libJar);
+			_fileUtil.copyFile(libArtifact.getFile(), libJarFile);
 		}
 	}
 
@@ -180,14 +202,14 @@ public class ExtBuilderMojo extends AbstractMojo {
 			String utilJarName)
 		throws Exception {
 
-		File utilJar = new File(utilDir, "ext-" + utilJarName);
+		File utilJarFile = new File(utilDir, "ext-" + utilJarName);
 
-		_fileUtil.copyFile(artifact.getFile(), utilJar);
+		_fileUtil.copyFile(artifact.getFile(), utilJarFile);
 
-		File depUtilJar = new File(
+		File dependencyUtilJarFile = new File(
 			implClassesDir, "ext-" + pluginName + "-" + utilJarName);
 
-		_fileUtil.copyFile(artifact.getFile(), depUtilJar);
+		_fileUtil.copyFile(artifact.getFile(), dependencyUtilJarFile);
 	}
 
 	protected Dependency createDependency(
@@ -197,8 +219,8 @@ public class ExtBuilderMojo extends AbstractMojo {
 
 		dependency.setArtifactId(artifactId);
 		dependency.setGroupId(groupId);
-		dependency.setVersion(version);
 		dependency.setType(type);
+		dependency.setVersion(version);
 
 		return dependency;
 	}
@@ -218,7 +240,9 @@ public class ExtBuilderMojo extends AbstractMojo {
 	protected MavenProject resolveProject(Artifact artifact) throws Exception {
 		Artifact pomArtifact = artifact;
 
-		if (!artifact.getType().equals("pom")) {
+		String type = artifact.getType();
+
+		if (!type.equals("pom")) {
 			pomArtifact = artifactFactory.createArtifact(
 				artifact.getGroupId(), artifact.getArtifactId(),
 				artifact.getVersion(), "", "pom");
@@ -229,13 +253,13 @@ public class ExtBuilderMojo extends AbstractMojo {
 	}
 
 	protected void unpack(
-			File src, File destDir, String[] excludes, String[] includes)
+			File srcFile, File destDir, String[] excludes, String[] includes)
 		throws Exception {
 
 		UnArchiver unArchiver = archiverManager.getUnArchiver(src);
 
 		unArchiver.setDestDirectory(destDir);
-		unArchiver.setSourceFile(src);
+		unArchiver.setSourceFile(srcFile);
 
 		IncludeExcludeFileSelector includeExcludeFileSelector =
 			new IncludeExcludeFileSelector();
@@ -317,4 +341,5 @@ public class ExtBuilderMojo extends AbstractMojo {
 	 * @required
 	 */
 	private File workDir;
+
 }
