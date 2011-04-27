@@ -55,15 +55,15 @@ public class LangBuilderMojo extends AbstractMojo {
 	}
 
 	/**
+	 * @parameter expression="${langCode}"
+	 */
+	private String langCode;
+
+	/**
 	 * @parameter default-value="${basedir}/src/main/resources/content" expression="${langDir}"
 	 * @required
 	 */
 	private String langDir;
-
-	/**
-	 * @parameter expression="${langCode}"
-	 */
-	private String langCode;
 
 	/**
 	 * @parameter default-value="Language" expression="${langFile}"
