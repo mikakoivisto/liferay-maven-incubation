@@ -94,7 +94,7 @@ public class ServiceBuilderMojo extends AbstractMojo {
 
 		FileUtil.mkdirs(sqlDir);
 
-		String serviceFileCopy = null;
+		File tempServiceFile = null;
 
 		if (pluginType.equals("ext")) {
 			pluginName = null;
@@ -104,13 +104,14 @@ public class ServiceBuilderMojo extends AbstractMojo {
 			springInfrastructureFileName = null;
 			springShardDataSourceFileName = null;
 
-			if (serviceFileName.indexOf("/main/resources/") > 0) {
+			if (serviceFileName.contains("/main/resources/")) {
 				File serviceFile = new File(serviceFileName);
 
-				serviceFileCopy = StringUtil.replace(
-					serviceFileName, "/main/resources/", "/main/java/");
+				tempServiceFile = new File(
+					StringUtil.replace(
+						serviceFileName, "/main/resources/", "/main/java/"));
 
-				FileUtil.copyFile(serviceFile, new File(serviceFileCopy));
+				FileUtil.copyFile(serviceFile, tempServiceFile);
 			}
 		}
 
@@ -124,8 +125,8 @@ public class ServiceBuilderMojo extends AbstractMojo {
 			sqlSequencesFileName, autoNamespaceTables, beanLocatorUtil,
 			propsUtil, pluginName, null);
 
-		if (serviceFileCopy != null) {
-			FileUtil.delete(serviceFileCopy);
+		if (tempServiceFile != null) {
+			FileUtil.delete(tempServiceFile);
 		}
 
 		moveServicePropertiesFile();
