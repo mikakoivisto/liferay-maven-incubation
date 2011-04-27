@@ -16,26 +16,19 @@ package com.liferay.maven.plugins;
 
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.xml.Document;
-import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.tools.WSDDMerger;
+import com.liferay.portal.tools.WSDDBuilder;
 import com.liferay.portal.util.FastDateFormatFactoryImpl;
 import com.liferay.portal.util.FileImpl;
 import com.liferay.portal.util.HtmlImpl;
 import com.liferay.portal.xml.SAXReaderImpl;
-import com.liferay.util.ant.Java2WsddTask;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Iterator;
-import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -61,89 +54,14 @@ public class WSDDBuilderMojo  extends AbstractMojo {
 	}
 
 	protected void doExecute() throws Exception {
-		String _portletShortName = null;
-		String _outputPath = resourcesDir;
-		String _packagePath = null;
+		WSDDBuilder wsddBuilder = new WSDDBuilder();
 
-		if (!FileUtil.exists(serverConfigFileName)) {
-			ClassLoader classLoader = getClass().getClassLoader();
+		wsddBuilder.setFileName(serviceFileName);
+		wsddBuilder.setOutputPath(resourcesDir + "/");
+		wsddBuilder.setServerConfigFileName(serverConfigFileName);
+		wsddBuilder.setServiceNamespace(serviceNamespace);
 
-			String serverConfigContent = StringUtil.read(
-				classLoader,
-				"com/liferay/portal/tools/dependencies/server-config.wsdd");
-
-			FileUtil.write(serverConfigFileName, serverConfigContent);
-		}
-
-		Document doc = SAXReaderUtil.read(new File(serviceFileName), true);
-
-		Element root = doc.getRootElement();
-
-		String packagePath = root.attributeValue("package-path");
-
-		Element portlet = root.element("portlet");
-		Element namespace = root.element("namespace");
-
-		if (portlet != null) {
-			_portletShortName = portlet.attributeValue("short-name");
-		}
-		else {
-			_portletShortName = namespace.getText();
-		}
-
-		_outputPath +=
-			"/" + StringUtil.replace(packagePath, ".", "/") + "/service/http";
-
-		_packagePath = packagePath;
-
-		List<Element> entities = root.elements("entity");
-
-		Iterator<Element> itr = entities.iterator();
-
-		while (itr.hasNext()) {
-			Element entity = itr.next();
-
-			String entityName = entity.attributeValue("name");
-
-			boolean remoteService = GetterUtil.getBoolean(
-				entity.attributeValue("remote-service"), true);
-
-			if (remoteService) {
-				String className =
-					_packagePath + ".service.http." + entityName + "ServiceSoap";
-
-				String serviceName = StringUtil.replace(_portletShortName, " ", "_");
-
-				if (!portalWsdd) {
-					serviceName = "Plugin_" + serviceName;
-				}
-				else {
-					if (!_portletShortName.equals("Portal")) {
-						serviceName = "Portlet_" + serviceName;
-					}
-				}
-
-				serviceName += ("_" + entityName + "Service");
-
-				String[] wsdds = Java2WsddTask.generateWsdd(
-					className, serviceName);
-
-				FileUtil.write(
-					new File(
-						_outputPath + "/" + entityName + "Service_deploy.wsdd"),
-					wsdds[0], true);
-
-				FileUtil.write(
-					new File(
-						_outputPath + "/" + entityName +
-						"Service_undeploy.wsdd"),
-					wsdds[1], true);
-
-				WSDDMerger.merge(
-					_outputPath + "/" + entityName + "Service_deploy.wsdd",
-					serverConfigFileName);
-			}
-		}
+		wsddBuilder.build();
 	}
 
 	protected void initClassLoader() throws Exception {
@@ -190,11 +108,6 @@ public class WSDDBuilderMojo  extends AbstractMojo {
 	}
 
 	/**
-	 * @parameter default-value="false" expression="${portalWsdd}"
-	 */
-	private boolean portalWsdd;
-
-	/**
 	 * @parameter expression="${project}"
 	 * @required
 	 * @readonly
@@ -218,4 +131,9 @@ public class WSDDBuilderMojo  extends AbstractMojo {
 	 * @required
 	 */
 	private String serviceFileName;
+
+	/**
+	 * @parameter default-value="Plugin" expression="${serviceNamespace}"
+	 */
+	private String serviceNamespace;
 }
