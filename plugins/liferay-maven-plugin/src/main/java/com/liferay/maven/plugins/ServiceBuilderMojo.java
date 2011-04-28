@@ -323,7 +323,6 @@ public class ServiceBuilderMojo extends AbstractMojo {
 
 	/**
 	 * @parameter default-value=""
-	 * @required
 	 */
 	private String remotingFileName;
 

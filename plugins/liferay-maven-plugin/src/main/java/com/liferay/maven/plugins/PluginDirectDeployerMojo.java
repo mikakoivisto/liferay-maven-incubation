@@ -117,34 +117,27 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 	}
 
 	protected void deployExt() throws Exception {
-		List<String> wars = new ArrayList<String>();
-
 		List<String> jars = new ArrayList<String>();
 
 		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
 
 		jars.add(libPath + "/util-java.jar");
 
-		new ExtDeployer(wars, jars);
+		ExtDeployer.main(jars.toArray(new String[0]));
 	}
 
 	protected void deployHook() throws Exception {
-		List<String> wars = new ArrayList<String>();
-
 		List<String> jars = new ArrayList<String>();
 
 		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
 
 		jars.add(libPath + "/util-java.jar");
 
-		new HookDeployer(wars, jars);
+		HookDeployer.main(jars.toArray(new String[0]));
 	}
 
 	protected void deployLayoutTemplate() throws Exception {
-		List<String> wars = new ArrayList<String>();
-		List<String> jars = new ArrayList<String>();
-
-		new LayoutTemplateDeployer(wars, jars);
+		LayoutTemplateDeployer.main(new String[0]);
 	}
 
 	protected void deployPortlet() throws Exception {
@@ -168,8 +161,6 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 		System.setProperty(
 			"deployer.util.taglib.dtd", tldPath + "/liferay-util.tld");
 
-		List<String> wars = new ArrayList<String>();
-
 		List<String> jars = new ArrayList<String>();
 
 		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
@@ -178,7 +169,7 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 		jars.add(libPath + "/util-java.jar");
 		jars.add(libPath + "/util-taglib.jar");
 
-		new PortletDeployer(wars, jars);
+		PortletDeployer.main(jars.toArray(new String[0]));
 	}
 
 	protected void deployTheme() throws Exception {
@@ -189,8 +180,6 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 		System.setProperty(
 			"deployer.util.taglib.dtd", tldPath + "/liferay-util.tld");
 
-		List<String> wars = new ArrayList<String>();
-
 		List<String> jars = new ArrayList<String>();
 
 		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
@@ -198,19 +187,17 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 		jars.add(libPath + "/util-java.jar");
 		jars.add(libPath + "/util-taglib.jar");
 
-		new ThemeDeployer(wars, jars);
+		ThemeDeployer.main(jars.toArray(new String[0]));
 	}
 
 	protected void deployWeb() throws Exception {
-		List<String> wars = new ArrayList<String>();
-
 		List<String> jars = new ArrayList<String>();
 
 		String libPath = workDir.getAbsolutePath() + "/WEB-INF/lib";
 
 		jars.add(libPath + "/util-java.jar");
 
-		new WebDeployer(wars, jars);
+		WebDeployer.main(jars.toArray(new String[0]));
 	}
 
 	protected void initPortal() {
