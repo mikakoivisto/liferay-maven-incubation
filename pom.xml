@@ -89,9 +89,9 @@
 		<repository>
 			<id>sonatype-release</id>
 			<name>Sonatype Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
+			<url>http://oss.sonatype.org/service/local/repositories/snapshots/content</url>
 			<releases>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
@@ -102,9 +102,9 @@
 		<pluginRepository>
 			<id>sonatype-release</id>
 			<name>Sonatype Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
+			<url>http://oss.sonatype.org/service/local/repositories/snapshots/content</url>
 			<releases>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
