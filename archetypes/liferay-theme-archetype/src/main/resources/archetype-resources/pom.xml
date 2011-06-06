@@ -86,6 +86,6 @@
 		<liferay.auto.deploy.dir>../bundles/deploy</liferay.auto.deploy.dir>
 		<liferay.theme.parent>_styled</liferay.theme.parent>
 		<liferay.theme.type>vm</liferay.theme.type>
-		<liferay.version>6.0.6-SNAPSHOT</liferay.version>
+		<liferay.version>6.0.6</liferay.version>
 	</properties>
 </project>
