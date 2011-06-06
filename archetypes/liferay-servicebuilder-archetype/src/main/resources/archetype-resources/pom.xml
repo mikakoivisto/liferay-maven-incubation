@@ -39,7 +39,7 @@
 		<liferay.version>6.0.6</liferay.version>
 	</properties>
 	<modules>
-		<module>${artifactId}-portlet</module>
 		<module>${artifactId}-service</module>
+		<module>${artifactId}-portlet</module>
 	</modules>
 </project>
