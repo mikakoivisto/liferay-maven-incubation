@@ -150,10 +150,10 @@ public class ThemeMergeMojo extends AbstractMojo {
 		String[] extensions = null;
 
 		if (themeType.equals("ftl")) {
-			extensions = new String[] {"vm"};
+			extensions = new String[] {"ftl"};
 		}
 		else {
-			extensions = new String[] {"ftl"};
+			extensions = new String[] {"vm"};
 		}
 
 		Iterator<File> itr = FileUtils.iterateFiles(
@@ -163,6 +163,11 @@ public class ThemeMergeMojo extends AbstractMojo {
 			File file = itr.next();
 
 			FileUtils.deleteQuietly(file);
+		}
+		
+		File diffs = new File(sourceDirectory, "_diffs");
+		if(diffs.exists()) {
+			FileUtils.copyDirectory(diffs, webappDirectory);
 		}
 	}
 
@@ -228,4 +233,11 @@ public class ThemeMergeMojo extends AbstractMojo {
 	 */
 	private File workDir;
 
+	/**
+	 * @parameter expression=
+	 *			  "${basedir}/src/main/webapp"
+	 * @required
+	 */
+	private File sourceDirectory;
+	
 }
