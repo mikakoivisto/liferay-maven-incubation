@@ -88,7 +88,7 @@ public class PluginDirectDeployerMojo extends AbstractMojo {
 		System.setProperty("deployer.app.server.type", appServerType);
 		System.setProperty("deployer.base.dir", baseDir);
 		System.setProperty("deployer.dest.dir", deployDir.getAbsolutePath());
-		System.setProperty("deployer.file.pattern", warFileName);
+		System.setProperty("deployer.file.pattern", warFileName.toLowerCase());
 		System.setProperty("deployer.unpack.war", String.valueOf(unpackWar));
 		System.setProperty(
 			"liferay.lib.portal.dir",
