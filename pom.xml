@@ -112,7 +112,7 @@
 		</pluginRepository>
 	</pluginRepositories>
 	<distributionManagement>
-		<repository>
+		<!--repository>
 			<id>sonatype-staging</id>
 			<name>Sonatype Staging Repository</name>
 			<url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
@@ -121,7 +121,17 @@
 			<id>sonatype-snapshot</id>
 			<name>Sonatype Snapshot Repository</name>
 			<url>http://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
+		</snapshotRepository-->
+    <repository>
+      <id>vec-private-releases-repo</id>
+      <name>private-plugin-builds</name>
+      <url>http://dev.vecweb.net/artifactory/private-plugin-builds</url>
+    </repository>
+    <snapshotRepository>
+      <id>vec-private-snapshots-repo</id>
+      <name>private-snapshots-repo</name>
+      <url>http://dev.vecweb.net/artifactory/private-plugin-snapshots</url>
+    </snapshotRepository>		
 	</distributionManagement>
 	<properties>
 		<liferay.version>6.0.6</liferay.version>

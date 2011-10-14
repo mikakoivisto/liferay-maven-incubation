@@ -57,8 +57,11 @@ public class ServiceMergeMojo extends AbstractMojo {
 						pathname.getAbsolutePath().contains("META-INF") ||
 						pathname.getName().compareTo("service.properties") == 0 ||
 						pathname.getName().endsWith("Impl.class") || 
+						pathname.getName().contains("Impl$") ||
 						pathname.getName().endsWith("JSONSerializer.class") ||
-						pathname.getName().endsWith("ServiceSoap.class")) {
+						pathname.getName().contains("JSONSerializer$") ||
+						pathname.getName().endsWith("ServiceSoap.class") ||
+						pathname.getName().contains("ServiceSoap$")) {
 					return true;
 				}
 						
