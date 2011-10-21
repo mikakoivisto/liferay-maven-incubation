@@ -76,9 +76,9 @@
 	</profiles>
 	<repositories>
 		<repository>
-			<id>jboss-release</id>
+			<id>jboss-public</id>
 			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/maven2</url>
+			<url>http://repository.jboss.org/nexus/content/groups/public</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
