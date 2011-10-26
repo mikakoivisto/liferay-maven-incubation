@@ -104,6 +104,7 @@ public class ExtBuilderMojo extends AbstractMojo {
 			Dependency dependency = (Dependency)dependencyObj;
 
 			if (!groupId.equals(dependency.getGroupId())) {
+
 				continue;
 			}
 
@@ -188,6 +189,13 @@ public class ExtBuilderMojo extends AbstractMojo {
 		List<Dependency> dependencies = libProject.getDependencies();
 
 		for (Dependency dependency : dependencies) {
+			if (dependency.getScope().equalsIgnoreCase("provided") ||
+				dependency.getScope().equalsIgnoreCase("test") ||
+				dependency.getType().equalsIgnoreCase("pom")) {
+
+				continue;
+			}
+
 			Artifact libArtifact = resolveArtifact(dependency);
 
 			File libJarFile = new File(
